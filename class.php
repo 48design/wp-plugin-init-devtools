@@ -34,7 +34,7 @@ class __PLUGIN_CLASSNAME__ {
     }
 
     public function load_textdomain() {
-        load_plugin_textdomain( '__PLUGIN_SLUG__', false, dirname( plugin_basename( WP_SVGCC_MAINFILE ) ) . '/languages' );
+        load_plugin_textdomain( '__PLUGIN_SLUG__', false, dirname( plugin_basename( WP___PLUGIN_SHORTHAND___MAINFILE ) ) . '/languages' );
     }
 
 }

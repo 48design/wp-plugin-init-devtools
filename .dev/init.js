@@ -171,6 +171,11 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
           slug
         );
       }
+      packageJson['wp-plugin'] = {
+        slug,
+        shorthand,
+        className
+      };
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     }
 

@@ -6,7 +6,7 @@
   "_scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "pnpm run git-update && npm run update-meta && node ./.dev/dist.js",
-    "update-meta": "node ./.dist/update-meta.js",
+    "update-meta": "node ./.dev/update-meta.js",
     "svn:checkout": "svn co https://plugins.svn.wordpress.org/{plugin-slug} ./svn",
     "svn:add": "cd svn && svn add trunk/* && svn add assets/*",
     "svn:stat": "cd svn && svn stat",

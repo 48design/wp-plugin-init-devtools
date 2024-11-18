@@ -5,22 +5,25 @@ const path = require('path');
 const cwd = process.cwd();
 
 // Load the package version
-const packageVersion = require(path.join(cwd, 'package.json')).version;
+const packageJson = require(path.join(cwd, 'package.json'));
+const packageVersion = packageJson.version;
+const pluginShorthand = packageJson?.['wp-plugin']?.shorthand;
+const pluginSlug = packageJson?.['wp-plugin']?.slug;
 
 console.log(`Set version to ${packageVersion}...`);
 
 // Paths to target files
-const indexFile = path.join(cwd, 'index.php');
+const mainFile = path.join(cwd, `${pluginSlug}.php`);
 const readmeFile = path.join(cwd, 'readme.txt');
 
-// Update index.php
-console.log('=> ' + indexFile);
-const indexContent = fs.readFileSync(indexFile, 'utf8');
+// Update main plugin file
+console.log('=> ' + mainFile);
+const indexContent = fs.readFileSync(mainFile, 'utf8');
 fs.writeFileSync(
-  indexFile,
+  mainFile,
   indexContent
     .replace(/^( \* Version: )[\d.]+(\-[a-z0-9]+)*$/m, `$1${packageVersion}`)
-    .replace(/(define\(\s*['"]WP_SVGCC_VERSION['"],\s*['"])[^'"]+(['"]\s*\);)/, `$1${packageVersion}$2`)
+    .replace(new RegExp(`(define\\(\\s*['"]WP_${pluginShorthand}_VERSION['"],\\s*['"])[^'"]+(['"]\\s*\\);)`), `$1${packageVersion}$2`)
 );
 
 // Update readme.txt
