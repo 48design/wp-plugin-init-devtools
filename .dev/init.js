@@ -163,9 +163,8 @@ function checkRepositoryAccess() {
       let gitCommand = `git ls-remote ${url}`;
       if (user) {
         // Suppress credential prompts for cases with usernames
-        gitCommand = `git -c credential.modalPrompt=false ${gitCommand}`;
+        gitCommand = `git -c core.askpass= -c credential.modalPrompt=false ${gitCommand}`;
         options.env.GIT_TERMINAL_PROMPT = '0';
-        options.env.GCM_INTERACTIVE = 'NEVER';
         
       }
 
