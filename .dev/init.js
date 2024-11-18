@@ -117,7 +117,7 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
 
     // Install dependencies
     console.log("Installing dependencies...");
-    execSync(`npm install`, { cwd: pluginPath, stdio: 'inherit' });
+    execSync(`npm install --silent`, { cwd: pluginPath, stdio: 'inherit' });
 
     // Remove the .git folder
     fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
