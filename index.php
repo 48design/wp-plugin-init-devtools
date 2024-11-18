@@ -16,7 +16,7 @@
  */
 
 defined('ABSPATH') or die('Direct script access disallowed.');
-defined('WP___PLUGIN_SHORTHAND___VERSION') or define('WP_{plugin-shorthand}_VERSION', '1.0.0');
+defined('WP___PLUGIN_SHORTHAND___VERSION') or define('WP___PLUGIN_SHORTHAND___VERSION', '1.0.0');
 
 $vad_laum_file = __DIR__ . '/includes/vad-updater/wp-licensing-and-update-module.php';
 if ( is_file( $vad_laum_file ) ) {
@@ -55,7 +55,7 @@ $activation_check = function () {
 register_activation_hook(__FILE__, $activation_check);
 
 if(!class_exists('__PLUGIN_CLASSNAME__')) {
-	define('WP_SVGCC_MAINFILE', __FILE__);
+	define('WP___PLUGIN_SHORTHAND___MAINFILE', __FILE__);
 	include_once(plugin_dir_path(__FILE__) . '__PLUGIN_SLUG__.php');
 
 	function __PLUGIN_SHORTHAND___initialize() {
