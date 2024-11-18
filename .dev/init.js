@@ -144,6 +144,19 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
       fs.renameSync(indexPath, renamedIndexPath);
     }
 
+    // Update the placeholders in class.php and rename the file
+    const classPath = path.join(pluginPath, 'class.php');
+    const renamedClassPath = path.join(pluginPath, `class-${slug}.php`);
+    if (fs.existsSync(classPath)) {
+      let classContent = fs.readFileSync(classPath, 'utf8');
+      classContent = classContent
+        .replace(/__PLUGIN_SHORTHAND__/g, shorthand)
+        .replace(/__PLUGIN_CLASSNAME__/g, className)
+        .replace(/__PLUGIN_SLUG__/g, slug);
+      fs.writeFileSync(classPath, classContent);
+      fs.renameSync(classPath, renamedClassPath);
+    }
+
     const packageJsonPath = path.join(pluginPath, 'package.json');
     if (fs.existsSync(packageJsonPath)) {
       let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));

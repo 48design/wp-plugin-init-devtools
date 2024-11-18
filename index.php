@@ -56,7 +56,7 @@ register_activation_hook(__FILE__, $activation_check);
 
 if(!class_exists('__PLUGIN_CLASSNAME__')) {
 	define('WP___PLUGIN_SHORTHAND___MAINFILE', __FILE__);
-	include_once(plugin_dir_path(__FILE__) . '__PLUGIN_SLUG__.php');
+	include_once(plugin_dir_path(__FILE__) . 'class-__PLUGIN_SLUG__.php');
 
 	function __PLUGIN_SHORTHAND___initialize() {
 		new __PLUGIN_CLASSNAME__();
