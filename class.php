@@ -24,8 +24,8 @@ class __PLUGIN_CLASSNAME__ {
         // use the constant WP___PLUGIN_SHORTHAND___VERSION as the version argument
         // for cache-busting of CSS and JS files
 
-        // wp_enqueue_script('__PLUGIN_SHORTHAND___js', plugins_url('/js/__PLUGIN_SHORTHAND__.js', WP___PLUGIN_SHORTHAND___MAINFILE), array(), WP_SVGCC_VERSION, true);
-        // wp_enqueue_style('__PLUGIN_SHORTHAND___css', plugins_url('/css/__PLUGIN_SHORTHAND__.css', WP___PLUGIN_SHORTHAND___MAINFILE), array(), WP_SVGCC_VERSION);
+        // wp_enqueue_script('__PLUGIN_SHORTHAND___js', plugins_url('/js/__PLUGIN_SHORTHAND__.js', WP___PLUGIN_SHORTHAND___MAINFILE), array(), WP___PLUGIN_SHORTHAND___VERSION, true);
+        // wp_enqueue_style('__PLUGIN_SHORTHAND___css', plugins_url('/css/__PLUGIN_SHORTHAND__.css', WP___PLUGIN_SHORTHAND___MAINFILE), array(), WP___PLUGIN_SHORTHAND___VERSION);
 
         // wp_localize_script('__PLUGIN_SHORTHAND___js', '__PLUGIN_SHORTHAND___vars', array(
         //     'nonce' => wp_create_nonce('__PLUGIN_SHORTHAND___nonce'),
@@ -34,7 +34,7 @@ class __PLUGIN_CLASSNAME__ {
     }
 
     public function load_textdomain() {
-        load_plugin_textdomain( 'svg-color-changer', false, dirname( plugin_basename( WP_SVGCC_MAINFILE ) ) . '/languages' );
+        load_plugin_textdomain( '__PLUGIN_SLUG__', false, dirname( plugin_basename( WP_SVGCC_MAINFILE ) ) . '/languages' );
     }
 
 }
