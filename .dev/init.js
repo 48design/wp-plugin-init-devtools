@@ -161,6 +161,7 @@ function checkRepositoryAccess() {
       }
 
       console.log(`Testing repository access with user: ${user || "credential manager"}`);
+      console.log(gitCommand);
       execSync(gitCommand, { stdio: 'ignore', env: { ...process.env } });
 
       // Success: Set the repository URL and username
