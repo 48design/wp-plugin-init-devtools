@@ -159,14 +159,18 @@ function checkRepositoryAccess() {
         env: { ...process.env }
       };
 
-      // Disable credential prompts for cases with usernames
+      // Build the Git command
+      let gitCommand = `git ls-remote ${url}`;
       if (user) {
+        // Suppress credential prompts for cases with usernames
+        gitCommand = `git -c credential.modalPrompt=false ${gitCommand}`;
         options.env.GIT_TERMINAL_PROMPT = '0';
       }
 
       console.log(`Testing repository access with user: ${user || "credential manager"}`);
-      execSync(`git -c credential.modalPrompt=false ls-remote ${url}`, options);
-      
+      execSync(gitCommand, options);
+
+      // Success: Set the repository URL and username
       GIT_REPO = url;
       USED_USERNAME = user;
       console.log(`Repository access successful with user: ${user || "credential manager"}`);
