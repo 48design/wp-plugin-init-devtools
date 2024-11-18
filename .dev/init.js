@@ -122,8 +122,11 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       fs.writeFileSync(readmeTxtPath, readmeContent);
     }
 
-    // Remove all .gitkeep files recursively using glob
-    removeGitkeepFiles(pluginPath);
+    // Dynamically require glob after npm install
+    const glob = require('glob');
+
+    // Remove all .gitkeep files
+    removeGitkeepFiles(pluginPath, glob);
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
@@ -134,8 +137,7 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
   }
 }
 
-function removeGitkeepFiles(dir) {
-  const glob = require('glob'); // Defer requiring glob until dependencies are installed
+function removeGitkeepFiles(dir, glob) {
   glob(`${dir}/**/.gitkeep`, (err, files) => {
     if (err) {
       console.error("Error finding .gitkeep files:", err.message);
