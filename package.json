@@ -1,6 +1,6 @@
 {
   "name": "wp-plugin-init",
   "bin": {
-    "wp-plugin-init": "./.dev/init.js"
+    "wp-plugin-init": "./.dev/.init.js"
   }
 }
