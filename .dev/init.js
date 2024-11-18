@@ -133,9 +133,9 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
         .replace(/__PLUGIN_SHORTHAND__/g, shorthand)
         .replace(/__PLUGIN_CLASSNAME__/g, className)
         .replace(/__PLUGIN_SLUG__/g, slug)
-        .replace(/(\*\s*Plugin Name:\s*).*/m, `$1${pluginName}`)
-        .replace(/(\*\s*Description:\s*).*/m, `$1${description}`)
-        .replace(/(\*\s*Text Domain:\s*).*/m, `$1${slug}`);
+        .replace(/(\*\s*Plugin Name:).*$/m, `$1 ${pluginName}`)
+        .replace(/(\*\s*Description:).*$/m, `$1 ${description}`)
+        .replace(/(\*\s*Text Domain:).*$/m, `$1 ${slug}`);
       fs.writeFileSync(indexPath, indexContent);
       fs.renameSync(indexPath, renamedIndexPath);
     }
