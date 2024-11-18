@@ -153,22 +153,15 @@ function checkRepositoryAccess() {
     try {
       const url = GIT_REPO.replace("{username}", user);
 
-      // Base options for Git commands
-      const options = {
-        stdio: 'ignore',
-        env: { ...process.env }
-      };
-
       // Build the Git command
       let gitCommand = `git ls-remote ${url}`;
       if (user) {
-        // Suppress credential prompts for cases with usernames
-        gitCommand = `git ${gitCommand}`;
-        options.env.GCM_INTERACTIVE = '0';
+        // Suppress credential popups but allow silent use of stored credentials
+        gitCommand = `git -c credential.interactive=Never ${gitCommand}`;
       }
 
       console.log(`Testing repository access with user: ${user || "credential manager"}`);
-      execSync(gitCommand, options);
+      execSync(gitCommand, { stdio: 'ignore', env: { ...process.env } });
 
       // Success: Set the repository URL and username
       GIT_REPO = url;
@@ -184,6 +177,7 @@ function checkRepositoryAccess() {
   console.error("Could not access the repository using any credentials.");
   return false;
 }
+
 
 function getGitUsernameFromConfig(pluginPath) {
   const configPath = path.join(pluginPath, '.git', 'config');
