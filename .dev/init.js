@@ -33,7 +33,7 @@ if (currentDir.endsWith(path.join('wp-content', 'plugins'))) {
 }
 
 // Log and check requirements
-console.log("Checking requirements");
+console.log("Checking requirements...");
 const requirements = [
   { name: 'PHP available', check: () => commandExists('php') },
   { name: 'PHP version >= 8.0', check: () => phpVersionAtLeast('8.0') },
