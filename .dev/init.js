@@ -176,6 +176,14 @@ function getGitUsernameFromConfig(pluginPath) {
   }
 }
 
+function getGitHubUser() {
+  try {
+    return execSync('git config --get user.name', { encoding: 'utf8' }).trim();
+  } catch {
+    return ''; // Return an empty string if no username is configured
+  }
+}
+
 function removeGitkeepFiles(dir) {
   const files = globSync(`${dir}/**/.gitkeep`);
   files.forEach(file => fs.rmSync(file));
