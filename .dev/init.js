@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
-const glob = require('glob');
 
 // Repository to clone (with username for access to private repo)
 const GIT_REPO = "https://48design@github.com/48design/wp-plugin-init.git";
@@ -28,9 +27,7 @@ console.log("Checking requirements");
 const requirements = [
   { name: 'PHP available', check: () => commandExists('php') },
   { name: 'PHP version >= 8.0', check: () => phpVersionAtLeast('8.0') },
-  { name: 'Git available', check: () => commandExists('git') },
-  { name: 'Node.js available', check: () => commandExists('node') },
-  { name: 'npm available', check: () => commandExists('npm') }
+  { name: 'Git available', check: () => commandExists('git') }
 ];
 
 const results = requirements.map(req => `[${req.check() ? 'X' : ' '}] ${req.name}`);
@@ -138,6 +135,7 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
 }
 
 function removeGitkeepFiles(dir) {
+  const glob = require('glob'); // Defer requiring glob until dependencies are installed
   glob(`${dir}/**/.gitkeep`, (err, files) => {
     if (err) {
       console.error("Error finding .gitkeep files:", err.message);
