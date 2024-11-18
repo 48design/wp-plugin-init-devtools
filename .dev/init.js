@@ -134,11 +134,12 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
     if (fs.existsSync(indexPath)) {
       let indexContent = fs.readFileSync(indexPath, 'utf8');
       indexContent = indexContent
+        .replace(/__PLUGIN_SHORTHAND__/g, shorthand)
+        .replace(/__PLUGIN_CLASSNAME__/g, className)
+        .replace(/__PLUGIN_SLUG__/g, slug)
         .replace(/^(\/\*\s*Plugin Name:\s*).*$/m, `$1${pluginName}`)
         .replace(/^(\/\*\s*Description:\s*).*$/m, `$1${description}`)
-        .replace(/^(\/\*\s*Text Domain:\s*).*$/m, `$1${slug}`)
-        .replace(/^(\/\*\s*Main Class:\s*).*$/m, `$1${className}`)
-        .replace(/^(\/\*\s*Shorthand:\s*).*$/m, `$1${shorthand}`);
+        .replace(/^(\/\*\s*Text Domain:\s*).*$/m, `$1${slug}`);
       fs.writeFileSync(indexPath, indexContent);
       fs.renameSync(indexPath, renamedIndexPath);
     }
@@ -193,6 +194,7 @@ function createAcronym(str) {
     .map(word => word.charAt(0).toUpperCase())
     .join('');
 }
+
 function checkRepositoryAccess() {
   const defaultUser = getGitHubUser();
   const testUsers = [
