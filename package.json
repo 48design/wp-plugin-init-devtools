@@ -1,3 +1,5 @@
 {
-  "bin": ".dev/init.js"
+  "bin": {
+    "wp-plugin-init": ".dev/init.js"
+  }
 }
