@@ -115,10 +115,6 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
 
     console.log(`Repository successfully cloned using username: ${USED_USERNAME || "credential manager"}`);
 
-    // Install dependencies
-    console.log("Installing dependencies...");
-    execSync(`npm install --silent`, { cwd: pluginPath, stdio: 'inherit' });
-
     // Remove the .git folder
     fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
 
@@ -188,6 +184,10 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
 
     // Remove all .gitkeep files recursively using globSync
     removeGitkeepFiles(pluginPath);
+    
+    // Install dependencies
+    console.log("Installing dependencies...");
+    execSync(`npm install --silent`, { cwd: pluginPath, stdio: 'inherit' });
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
