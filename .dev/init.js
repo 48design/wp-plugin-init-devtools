@@ -165,6 +165,8 @@ function checkRepositoryAccess() {
         // Suppress credential prompts for cases with usernames
         gitCommand = `git -c credential.modalPrompt=false ${gitCommand}`;
         options.env.GIT_TERMINAL_PROMPT = '0';
+        options.env.GCM_INTERACTIVE = 'NEVER';
+        
       }
 
       console.log(`Testing repository access with user: ${user || "credential manager"}`);
