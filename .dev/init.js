@@ -4,10 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
-const { globSync } = require('glob'); // Import the synchronous version of glob
+const { globSync } = require('glob');
 
-// Repository to clone (with username for access to private repo)
-const GIT_REPO = "https://48design@github.com/48design/wp-plugin-init.git";
+// Repository to clone (placeholder for username)
+let GIT_REPO = "https://{username}@github.com/48design/wp-plugin-init.git";
+let USED_USERNAME = ""; // Track the username used
 
 // Paths
 const scriptDir = __dirname;
@@ -15,11 +16,7 @@ const currentDir = process.cwd();
 
 // Check if the script is in the correct directory
 if (!currentDir.endsWith(path.join('wp-content', 'plugins'))) {
-  const locationMessage =
-    scriptDir === currentDir
-      ? "Execute me in your dev WordPress instance's wp-content/plugins folder!"
-      : "Ensure you're executing me in your dev WordPress instance's wp-content/plugins folder!";
-  console.log(locationMessage);
+  console.log("Execute me in your dev WordPress instance's wp-content/plugins folder!");
   process.exit(1);
 }
 
@@ -28,7 +25,8 @@ console.log("Checking requirements");
 const requirements = [
   { name: 'PHP available', check: () => commandExists('php') },
   { name: 'PHP version >= 8.0', check: () => phpVersionAtLeast('8.0') },
-  { name: 'Git available', check: () => commandExists('git') }
+  { name: 'Git available', check: () => commandExists('git') },
+  { name: 'Repository access', check: checkRepositoryAccess }
 ];
 
 const results = requirements.map(req => `[${req.check() ? 'X' : ' '}] ${req.name}`);
@@ -78,8 +76,16 @@ function askForDescription(pluginName, slug) {
 function setupPlugin(pluginName, slug, description, pluginPath) {
   console.log("Cloning repository...");
   try {
-    // Clone the repository
-    execSync(`git clone --depth=1 ${GIT_REPO} ${pluginPath}`, { stdio: 'inherit' });
+    const cloneRepo = GIT_REPO.replace("{username}", USED_USERNAME || "");
+    execSync(`git clone --depth=1 ${cloneRepo} ${pluginPath}`, { stdio: 'inherit' });
+
+    // If no username was determined earlier, extract it from the .git/config file
+    if (!USED_USERNAME) {
+      USED_USERNAME = getGitUsernameFromConfig(pluginPath);
+      console.log(`Detected username from .git/config: ${USED_USERNAME}`);
+    }
+
+    console.log(`Repository successfully cloned using username: ${USED_USERNAME || "credential manager"}`);
 
     // Install dependencies
     console.log("Installing dependencies...");
@@ -110,7 +116,7 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       packageJson.name = slug;
       packageJson.description = description;
       packageJson.author = "48DESIGN GmbH";
-      packageJson.version = "1.0.0"; // Set version
+      packageJson.version = "1.0.0";
       delete packageJson.bin; // Remove the "bin" property
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     }
@@ -130,22 +136,54 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
   } catch (err) {
     console.error("Error setting up the plugin:", err.message);
     if (fs.existsSync(pluginPath)) {
-      fs.rmSync(pluginPath, { recursive: true, force: true }); // Clean up in case of failure
+      fs.rmSync(pluginPath, { recursive: true, force: true });
     }
   }
 }
 
-function removeGitkeepFiles(dir) {
-  const files = globSync(`${dir}/**/.gitkeep`); // Synchronous glob usage
-  files.forEach(file => {
-    fs.rmSync(file);
-  });
+function checkRepositoryAccess() {
+  const defaultUser = getGitHubUser();
+  const testUsers = [
+    defaultUser,
+    "48design",
+    ""
+  ];
+
+  for (const user of testUsers) {
+    try {
+      let url = GIT_REPO.replace("{username}", user);
+      execSync(`git ls-remote ${url}`, { stdio: 'ignore' });
+      GIT_REPO = url;
+      USED_USERNAME = user;
+      return true;
+    } catch {
+      // Continue to the next URL
+    }
+  }
+
+  console.error("Could not access the repository using any credentials.");
+  return false;
 }
 
-// Helper functions
+function getGitUsernameFromConfig(pluginPath) {
+  const configPath = path.join(pluginPath, '.git', 'config');
+  try {
+    const config = fs.readFileSync(configPath, 'utf8');
+    const match = config.match(/url = https:\/\/(.*?)@github.com/);
+    return match ? match[1] : ''; // Extract username from URL
+  } catch {
+    return '';
+  }
+}
+
+function removeGitkeepFiles(dir) {
+  const files = globSync(`${dir}/**/.gitkeep`);
+  files.forEach(file => fs.rmSync(file));
+}
+
 function commandExists(cmd) {
   try {
-    execSync(`${cmd} --version`, { stdio: 'ignore' }); // Try running the command
+    execSync(`${cmd} --version`, { stdio: 'ignore' });
     return true;
   } catch {
     return false;
