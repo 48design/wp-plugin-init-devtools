@@ -2,5 +2,12 @@
   "name": "wp-plugin-init",
   "bin": {
     "wp-plugin-init": "./.dev/init.js"
+  },
+  "devDependencies": {
+    "archiver": "^5.3.0",
+    "cross-var": "^1.1.0",
+    "fs-extra": "^10.0.0",
+    "glob": "^11.0.0",
+    "rimraf": "^3.0.2"
   }
 }
