@@ -3,7 +3,7 @@
   "bin": {
     "wp-plugin-init": "./.dev/init.js"
   },
-  "scripts": {
+  "_scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "pnpm run git-update && npm run update-meta && node ./.dev/dist.js",
     "update-meta": "node ./.dist/update-meta.js",
