@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+console.log("DEBUG");
+process.exit(-1);
+
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
