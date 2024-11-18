@@ -13,10 +13,22 @@ let USED_USERNAME = ""; // Track the username used
 // Paths
 const scriptDir = __dirname;
 const currentDir = process.cwd();
+let pluginBaseDir = currentDir;
 
-// Check if the script is in the correct directory
-if (!currentDir.endsWith(path.join('wp-content', 'plugins'))) {
-  console.log("Execute me in your dev WordPress instance's wp-content/plugins folder!");
+// Determine the correct plugins directory
+if (currentDir.endsWith(path.join('wp-content', 'plugins'))) {
+  pluginBaseDir = currentDir;
+} else if (currentDir.endsWith('wp-content')) {
+  // If in wp-content, check for plugins directory
+  const potentialPluginsDir = path.join(currentDir, 'plugins');
+  if (fs.existsSync(potentialPluginsDir)) {
+    pluginBaseDir = potentialPluginsDir;
+  }
+} else if (fs.existsSync(path.join(currentDir, 'wp-content', 'plugins'))) {
+  // If in WordPress root, use wp-content/plugins
+  pluginBaseDir = path.join(currentDir, 'wp-content', 'plugins');
+} else {
+  console.log("Execute me in or near your WordPress instance's wp-content/plugins folder!");
   process.exit(1);
 }
 
@@ -54,7 +66,7 @@ function createPlugin() {
 function askForSlug(pluginName, defaultSlug) {
   rl.question(`Plugin slug (default: ${defaultSlug}): `, (slugInput) => {
     const slug = slugInput.trim() || defaultSlug;
-    const pluginPath = path.join(currentDir, slug);
+    const pluginPath = path.join(pluginBaseDir, slug);
 
     if (fs.existsSync(pluginPath)) {
       console.log(`A plugin with the slug "${slug}" already exists. Please choose a different slug.`);
@@ -67,7 +79,7 @@ function askForSlug(pluginName, defaultSlug) {
 
 function askForDescription(pluginName, slug) {
   rl.question("Enter a short description for your plugin: ", (description) => {
-    const pluginPath = path.join(currentDir, slug);
+    const pluginPath = path.join(pluginBaseDir, slug);
     setupPlugin(pluginName, slug, description, pluginPath);
     rl.close();
   });
@@ -177,7 +189,7 @@ function checkRepositoryAccess() {
     }
   }
 
-  // console.error("Could not access the repository using any credentials.");
+  console.error("Could not access the repository using any credentials.");
   return false;
 }
 
