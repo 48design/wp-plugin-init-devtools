@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
+const glob = require('glob');
 
 // Repository to clone (with username for access to private repo)
 const GIT_REPO = "https://48design@github.com/48design/wp-plugin-init.git";
@@ -27,7 +28,9 @@ console.log("Checking requirements");
 const requirements = [
   { name: 'PHP available', check: () => commandExists('php') },
   { name: 'PHP version >= 8.0', check: () => phpVersionAtLeast('8.0') },
-  { name: 'Git available', check: () => commandExists('git') }
+  { name: 'Git available', check: () => commandExists('git') },
+  { name: 'Node.js available', check: () => commandExists('node') },
+  { name: 'npm available', check: () => commandExists('npm') }
 ];
 
 const results = requirements.map(req => `[${req.check() ? 'X' : ' '}] ${req.name}`);
@@ -80,6 +83,10 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
     // Clone the repository
     execSync(`git clone --depth=1 ${GIT_REPO} ${pluginPath}`, { stdio: 'inherit' });
 
+    // Install dependencies
+    console.log("Installing dependencies...");
+    execSync(`npm install`, { cwd: pluginPath, stdio: 'inherit' });
+
     // Remove the .git folder
     fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
 
@@ -98,9 +105,17 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
     // Update the main plugin file with the provided details
     fs.writeFileSync(mainFilePath, generatePluginHeader(pluginName, slug, description));
 
-    // Overwrite the package.json
+    // Update the package.json
     const packageJsonPath = path.join(pluginPath, 'package.json');
-    fs.writeFileSync(packageJsonPath, generatePackageJson(slug, description));
+    if (fs.existsSync(packageJsonPath)) {
+      let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      packageJson.name = slug;
+      packageJson.description = description;
+      packageJson.author = "48DESIGN GmbH";
+      packageJson.version = "1.0.0"; // Set version
+      delete packageJson.bin; // Remove the "bin" property
+      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    }
 
     // Update the readme.txt file
     const readmeTxtPath = path.join(pluginPath, 'readme.txt');
@@ -110,6 +125,9 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       fs.writeFileSync(readmeTxtPath, readmeContent);
     }
 
+    // Remove all .gitkeep files recursively using glob
+    removeGitkeepFiles(pluginPath);
+
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
     console.error("Error setting up the plugin:", err.message);
@@ -117,6 +135,18 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       fs.rmSync(pluginPath, { recursive: true, force: true }); // Clean up in case of failure
     }
   }
+}
+
+function removeGitkeepFiles(dir) {
+  glob(`${dir}/**/.gitkeep`, (err, files) => {
+    if (err) {
+      console.error("Error finding .gitkeep files:", err.message);
+      return;
+    }
+    files.forEach(file => {
+      fs.rmSync(file);
+    });
+  });
 }
 
 // Helper functions
@@ -157,16 +187,6 @@ Author URI: https://48design.com
 Text Domain: ${slug}
 */
 `;
-}
-
-function generatePackageJson(slug, description) {
-  return JSON.stringify({
-    name: slug,
-    version: "1.0.0",
-    author: "48DESIGN GmbH",
-    description: description,
-    license: "GPL-2.0-or-later"
-  }, null, 2);
 }
 
 // Start the script
