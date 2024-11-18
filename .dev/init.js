@@ -153,9 +153,8 @@ function checkRepositoryAccess() {
     try {
       const url = GIT_REPO.replace("{username}", user);
       console.log(`Testing repository access with user: ${user || "credential manager"}`);
-      execSync(`git ls-remote ${url}`, {
-        stdio: 'ignore',
-        env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } // Disable credential popup
+      execSync(`git -c credential.helper= ls-remote ${url}`, {
+        stdio: 'ignore'
       });
       GIT_REPO = url;
       USED_USERNAME = user;
