@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
-const glob = require('glob'); // Glob will be available via npx
+const { globSync } = require('glob'); // Import the synchronous version of glob
 
 // Repository to clone (with username for access to private repo)
 const GIT_REPO = "https://48design@github.com/48design/wp-plugin-init.git";
@@ -123,7 +123,7 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       fs.writeFileSync(readmeTxtPath, readmeContent);
     }
 
-    // Remove all .gitkeep files recursively using glob
+    // Remove all .gitkeep files recursively using globSync
     removeGitkeepFiles(pluginPath);
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
@@ -136,14 +136,9 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
 }
 
 function removeGitkeepFiles(dir) {
-  glob(`${dir}/**/.gitkeep`, (err, files) => {
-    if (err) {
-      console.error("Error finding .gitkeep files:", err.message);
-      return;
-    }
-    files.forEach(file => {
-      fs.rmSync(file);
-    });
+  const files = globSync(`${dir}/**/.gitkeep`); // Synchronous glob usage
+  files.forEach(file => {
+    fs.rmSync(file);
   });
 }
 
