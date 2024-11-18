@@ -1,8 +1,5 @@
 {
   "name": "wp-plugin-init",
-  "scripts": {
-    "postinstall": "node ./.dev/init.js"
-  },
   "bin": {
     "wp-plugin-init": "./.dev/init.js"
   }
