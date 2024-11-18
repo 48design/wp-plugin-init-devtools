@@ -83,35 +83,32 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
     // Remove the .git folder
     fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
 
-    // Remove the .dev/init.js file
+    // Remove unnecessary files
     const initFilePath = path.join(pluginPath, '.dev', 'init.js');
-    if (fs.existsSync(initFilePath)) {
-      fs.rmSync(initFilePath);
-    }
-    
-    // Remove the README.md file
-    const readmeFilePath = path.join(pluginPath, 'README.md');
-    if (fs.existsSync(readmeFilePath)) {
-      fs.rmSync(readmeFilePath);
-    }
+    if (fs.existsSync(initFilePath)) fs.rmSync(initFilePath);
+
+    const readmeMdPath = path.join(pluginPath, 'README.md');
+    if (fs.existsSync(readmeMdPath)) fs.rmSync(readmeMdPath);
 
     // Rename the main plugin file to match the slug
     const mainFilePath = path.join(pluginPath, `${slug}.php`);
     const defaultMainFile = path.join(pluginPath, 'plugin.php');
-    if (fs.existsSync(defaultMainFile)) {
-      fs.renameSync(defaultMainFile, mainFilePath);
-    }
+    if (fs.existsSync(defaultMainFile)) fs.renameSync(defaultMainFile, mainFilePath);
 
     // Update the main plugin file with the provided details
     fs.writeFileSync(mainFilePath, generatePluginHeader(pluginName, slug, description));
 
-    // Update the package.json
+    // Overwrite the package.json
     const packageJsonPath = path.join(pluginPath, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    packageJson.name = slug;
-    packageJson.description = description;
-    packageJson.author = "48DESIGN GmbH";
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    fs.writeFileSync(packageJsonPath, generatePackageJson(slug, description));
+
+    // Update the readme.txt file
+    const readmeTxtPath = path.join(pluginPath, 'readme.txt');
+    if (fs.existsSync(readmeTxtPath)) {
+      let readmeContent = fs.readFileSync(readmeTxtPath, 'utf8');
+      readmeContent = readmeContent.replace(/{Plugin Name}/g, pluginName).replace(/{Description Text}/g, description);
+      fs.writeFileSync(readmeTxtPath, readmeContent);
+    }
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
@@ -160,6 +157,16 @@ Author URI: https://48design.com
 Text Domain: ${slug}
 */
 `;
+}
+
+function generatePackageJson(slug, description) {
+  return JSON.stringify({
+    name: slug,
+    version: "1.0.0",
+    author: "48DESIGN GmbH",
+    description: description,
+    license: "GPL-2.0-or-later"
+  }, null, 2);
 }
 
 // Start the script
