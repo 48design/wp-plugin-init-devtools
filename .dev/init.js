@@ -113,13 +113,18 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
     const readmeMdPath = path.join(pluginPath, 'README.md');
     if (fs.existsSync(readmeMdPath)) fs.rmSync(readmeMdPath);
 
-    // Rename the main plugin file to match the slug
-    const mainFilePath = path.join(pluginPath, `${slug}.php`);
-    const defaultMainFile = path.join(pluginPath, 'plugin.php');
-    if (fs.existsSync(defaultMainFile)) fs.renameSync(defaultMainFile, mainFilePath);
-
-    // Update the main plugin file with the provided details
-    fs.writeFileSync(mainFilePath, generatePluginHeader(pluginName, slug, description));
+    // Update the plugin header in index.php and rename the file
+    const indexPath = path.join(pluginPath, 'index.php');
+    const renamedIndexPath = path.join(pluginPath, `${slug}.php`);
+    if (fs.existsSync(indexPath)) {
+      let indexContent = fs.readFileSync(indexPath, 'utf8');
+      indexContent = indexContent
+        .replace(/^(\/\*\s*Plugin Name:\s*).*$/m, `$1${pluginName}`)
+        .replace(/^(\/\*\s*Description:\s*).*$/m, `$1${description}`)
+        .replace(/^(\/\*\s*Text Domain:\s*).*$/m, `$1${slug}`);
+      fs.writeFileSync(indexPath, indexContent);
+      fs.renameSync(indexPath, renamedIndexPath); // Rename the file
+    }
 
     // Update the package.json
     const packageJsonPath = path.join(pluginPath, 'package.json');
@@ -129,7 +134,12 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       packageJson.description = description;
       packageJson.author = "48DESIGN GmbH";
       packageJson.version = "1.0.0";
-      delete packageJson.bin; // Remove the "bin" property
+      if (packageJson.scripts && packageJson.scripts['svn:checkout']) {
+        packageJson.scripts['svn:checkout'] = packageJson.scripts['svn:checkout'].replace(
+          /\{plugin-slug\}/g,
+          slug
+        );
+      }
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     }
 
@@ -174,14 +184,14 @@ function checkRepositoryAccess() {
         options.env.GIT_TERMINAL_PROMPT = '0';
       }
 
-      // console.log(`Testing repository access with user: ${user || "credential manager"}`);
-      // console.log(gitCommand);
+      // console.log(`Testing repository access with user: ${user || "credential manager"}`); 
+      // console.log(gitCommand); 
       execSync(`git ${gitCommand}`, options);
 
       // Success: Set the repository URL and username
       GIT_REPO = url;
       USED_USERNAME = user;
-      // console.log(`Repository access successful with user: ${user || "credential manager"}`);
+      // console.log(`Repository access successful with user: ${user || "credential manager"}`); 
       return true;
     } catch {
       // console.log(`Repository access failed with user: ${user || "credential manager"}`);
@@ -192,7 +202,6 @@ function checkRepositoryAccess() {
   console.error("Could not access the repository using any credentials.");
   return false;
 }
-
 
 function getGitUsernameFromConfig(pluginPath) {
   const configPath = path.join(pluginPath, '.git', 'config');
@@ -241,20 +250,6 @@ function compareVersions(v1, v2) {
   const [a, b, c] = v1.split('.').map(Number);
   const [x, y, z] = v2.split('.').map(Number);
   return a - x || b - y || c - z;
-}
-
-function generatePluginHeader(pluginName, slug, description) {
-  return `<?php
-/*
-Plugin Name: ${pluginName}
-Plugin URI: https://48design.com
-Description: ${description}
-Version: 1.0.0
-Author: 48DESIGN GmbH
-Author URI: https://48design.com
-Text Domain: ${slug}
-*/
-`;
 }
 
 // Start the script
