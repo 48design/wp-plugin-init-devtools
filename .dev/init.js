@@ -144,8 +144,8 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
 function checkRepositoryAccess() {
   const defaultUser = getGitHubUser();
   const testUsers = [
-    defaultUser,
     "48design",
+    defaultUser,
     "" // No username, fallback to credential manager
   ];
 
@@ -162,22 +162,22 @@ function checkRepositoryAccess() {
         options.env.GIT_TERMINAL_PROMPT = '0';
       }
 
-      console.log(`Testing repository access with user: ${user || "credential manager"}`);
-      console.log(gitCommand);
+      // console.log(`Testing repository access with user: ${user || "credential manager"}`);
+      // console.log(gitCommand);
       execSync(`git ${gitCommand}`, options);
 
       // Success: Set the repository URL and username
       GIT_REPO = url;
       USED_USERNAME = user;
-      console.log(`Repository access successful with user: ${user || "credential manager"}`);
+      // console.log(`Repository access successful with user: ${user || "credential manager"}`);
       return true;
     } catch {
-      console.log(`Repository access failed with user: ${user || "credential manager"}`);
+      // console.log(`Repository access failed with user: ${user || "credential manager"}`);
       // Continue to the next URL
     }
   }
 
-  console.error("Could not access the repository using any credentials.");
+  // console.error("Could not access the repository using any credentials.");
   return false;
 }
 
