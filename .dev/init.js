@@ -73,19 +73,35 @@ function askForSlug(pluginName, defaultSlug) {
       return askForSlug(pluginName, defaultSlug);
     }
 
-    askForDescription(pluginName, slug);
+    askForClassName(pluginName, slug);
   });
 }
 
-function askForDescription(pluginName, slug) {
+function askForClassName(pluginName, slug) {
+  const defaultClassName = toPascalCase(pluginName);
+  rl.question(`Main class name (default: ${defaultClassName}): `, (classInput) => {
+    const className = classInput.trim() || defaultClassName;
+    askForShorthand(pluginName, slug, className);
+  });
+}
+
+function askForShorthand(pluginName, slug, className) {
+  const defaultShorthand = createAcronym(pluginName);
+  rl.question(`Shorthand for functions/constants (default: ${defaultShorthand}): `, (shorthandInput) => {
+    const shorthand = shorthandInput.trim() || defaultShorthand;
+    askForDescription(pluginName, slug, className, shorthand);
+  });
+}
+
+function askForDescription(pluginName, slug, className, shorthand) {
   rl.question("Enter a short description for your plugin: ", (description) => {
     const pluginPath = path.join(pluginBaseDir, slug);
-    setupPlugin(pluginName, slug, description, pluginPath);
+    setupPlugin(pluginName, slug, className, shorthand, description, pluginPath);
     rl.close();
   });
 }
 
-function setupPlugin(pluginName, slug, description, pluginPath) {
+function setupPlugin(pluginName, slug, className, shorthand, description, pluginPath) {
   console.log("Cloning repository...");
   try {
     const cloneRepo = GIT_REPO.replace("{username}", USED_USERNAME || "");
@@ -113,7 +129,6 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
     const readmeMdPath = path.join(pluginPath, 'README.md');
     if (fs.existsSync(readmeMdPath)) fs.rmSync(readmeMdPath);
 
-    // Update the plugin header in index.php and rename the file
     const indexPath = path.join(pluginPath, 'index.php');
     const renamedIndexPath = path.join(pluginPath, `${slug}.php`);
     if (fs.existsSync(indexPath)) {
@@ -121,12 +136,13 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       indexContent = indexContent
         .replace(/^(\/\*\s*Plugin Name:\s*).*$/m, `$1${pluginName}`)
         .replace(/^(\/\*\s*Description:\s*).*$/m, `$1${description}`)
-        .replace(/^(\/\*\s*Text Domain:\s*).*$/m, `$1${slug}`);
+        .replace(/^(\/\*\s*Text Domain:\s*).*$/m, `$1${slug}`)
+        .replace(/^(\/\*\s*Main Class:\s*).*$/m, `$1${className}`)
+        .replace(/^(\/\*\s*Shorthand:\s*).*$/m, `$1${shorthand}`);
       fs.writeFileSync(indexPath, indexContent);
-      fs.renameSync(indexPath, renamedIndexPath); // Rename the file
+      fs.renameSync(indexPath, renamedIndexPath);
     }
 
-    // Update the package.json
     const packageJsonPath = path.join(pluginPath, 'package.json');
     if (fs.existsSync(packageJsonPath)) {
       let packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -134,6 +150,7 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       packageJson.description = description;
       packageJson.author = "48DESIGN GmbH";
       packageJson.version = "1.0.0";
+      delete packageJson.bin; // Remove the "bin" property
       if (packageJson.scripts && packageJson.scripts['svn:checkout']) {
         packageJson.scripts['svn:checkout'] = packageJson.scripts['svn:checkout'].replace(
           /\{plugin-slug\}/g,
@@ -163,6 +180,19 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
   }
 }
 
+function toPascalCase(str) {
+  return str
+    .split(/[\s_-]+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+}
+
+function createAcronym(str) {
+  return str
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase())
+    .join('');
+}
 function checkRepositoryAccess() {
   const defaultUser = getGitHubUser();
   const testUsers = [
@@ -184,14 +214,14 @@ function checkRepositoryAccess() {
         options.env.GIT_TERMINAL_PROMPT = '0';
       }
 
-      // console.log(`Testing repository access with user: ${user || "credential manager"}`); 
-      // console.log(gitCommand); 
+      // console.log(`Testing repository access with user: ${user || "credential manager"}`);
+      // console.log(gitCommand);
       execSync(`git ${gitCommand}`, options);
 
       // Success: Set the repository URL and username
       GIT_REPO = url;
       USED_USERNAME = user;
-      // console.log(`Repository access successful with user: ${user || "credential manager"}`); 
+      // console.log(`Repository access successful with user: ${user || "credential manager"}`);
       return true;
     } catch {
       // console.log(`Repository access failed with user: ${user || "credential manager"}`);
@@ -202,6 +232,7 @@ function checkRepositoryAccess() {
   console.error("Could not access the repository using any credentials.");
   return false;
 }
+
 
 function getGitUsernameFromConfig(pluginPath) {
   const configPath = path.join(pluginPath, '.git', 'config');
