@@ -74,7 +74,7 @@ function askForDescription(pluginName, slug) {
   });
 }
 
-function setupPlugin(pluginName, slug, description, pluginPath) {
+async function setupPlugin(pluginName, slug, description, pluginPath) {
   console.log("Cloning repository...");
   try {
     // Clone the repository
@@ -122,11 +122,8 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
       fs.writeFileSync(readmeTxtPath, readmeContent);
     }
 
-    // Dynamically require glob after npm install
-    const glob = require('glob');
-
-    // Remove all .gitkeep files
-    removeGitkeepFiles(pluginPath, glob);
+    // Remove all .gitkeep files recursively using glob
+    await removeGitkeepFiles(pluginPath);
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
@@ -137,7 +134,8 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
   }
 }
 
-function removeGitkeepFiles(dir, glob) {
+async function removeGitkeepFiles(dir) {
+  const glob = (await import('glob')).default; // Dynamically import glob
   glob(`${dir}/**/.gitkeep`, (err, files) => {
     if (err) {
       console.error("Error finding .gitkeep files:", err.message);
