@@ -6,7 +6,7 @@ const readline = require('readline');
 const { execSync } = require('child_process');
 
 // Repository to clone (with username for access to private repo)
-const GIT_REPO = "https://<USERNAME>@github.com/48design/wp-plugin-init.git";
+const GIT_REPO = "https://48design@github.com/48design/wp-plugin-init.git";
 
 // Paths
 const scriptDir = __dirname;
