@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
+const glob = require('glob'); // Glob will be available via npx
 
 // Repository to clone (with username for access to private repo)
 const GIT_REPO = "https://48design@github.com/48design/wp-plugin-init.git";
@@ -74,7 +75,7 @@ function askForDescription(pluginName, slug) {
   });
 }
 
-async function setupPlugin(pluginName, slug, description, pluginPath) {
+function setupPlugin(pluginName, slug, description, pluginPath) {
   console.log("Cloning repository...");
   try {
     // Clone the repository
@@ -123,7 +124,7 @@ async function setupPlugin(pluginName, slug, description, pluginPath) {
     }
 
     // Remove all .gitkeep files recursively using glob
-    await removeGitkeepFiles(pluginPath);
+    removeGitkeepFiles(pluginPath);
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
@@ -134,8 +135,7 @@ async function setupPlugin(pluginName, slug, description, pluginPath) {
   }
 }
 
-async function removeGitkeepFiles(dir) {
-  const glob = (await import('glob')).default; // Dynamically import glob
+function removeGitkeepFiles(dir) {
   glob(`${dir}/**/.gitkeep`, (err, files) => {
     if (err) {
       console.error("Error finding .gitkeep files:", err.message);
