@@ -155,14 +155,16 @@ function checkRepositoryAccess() {
 
       // Build the Git command
       let gitCommand = `ls-remote ${url}`;
+      let options = { stdio: 'ignore', env: { ...process.env };
       if (user) {
         // Suppress credential popups but allow silent use of stored credentials
         gitCommand = `-c credential.interactive=Never ${gitCommand}`;
+        options.env.GIT_TERMINAL_PROMPT = '0';
       }
 
       console.log(`Testing repository access with user: ${user || "credential manager"}`);
       console.log(gitCommand);
-      execSync(`git ${gitCommand}`, { stdio: 'ignore', env: { ...process.env } });
+      execSync(`git ${gitCommand}`, options});
 
       // Success: Set the repository URL and username
       GIT_REPO = url;
