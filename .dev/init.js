@@ -88,6 +88,12 @@ function setupPlugin(pluginName, slug, description, pluginPath) {
     if (fs.existsSync(initFilePath)) {
       fs.rmSync(initFilePath);
     }
+    
+    // Remove the README.md file
+    const readmeFilePath = path.join(pluginPath, 'README.md');
+    if (fs.existsSync(readmeFilePath)) {
+      fs.rmSync(readmeFilePath);
+    }
 
     // Rename the main plugin file to match the slug
     const mainFilePath = path.join(pluginPath, `${slug}.php`);
@@ -148,7 +154,7 @@ function generatePluginHeader(pluginName, slug, description) {
 Plugin Name: ${pluginName}
 Plugin URI: https://48design.com
 Description: ${description}
-Version: 1.0
+Version: 1.0.0
 Author: 48DESIGN GmbH
 Author URI: https://48design.com
 Text Domain: ${slug}
