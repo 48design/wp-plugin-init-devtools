@@ -5,6 +5,9 @@ const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
 
+// Repository to clone (with username for access to private repo)
+const GIT_REPO = "https://<USERNAME>@github.com/48design/wp-plugin-init.git";
+
 // Paths
 const scriptDir = __dirname;
 const currentDir = process.cwd();
@@ -66,20 +69,51 @@ function askForSlug(pluginName, defaultSlug) {
 function askForDescription(pluginName, slug) {
   rl.question("Enter a short description for your plugin: ", (description) => {
     const pluginPath = path.join(currentDir, slug);
-    createPluginStructure(pluginName, slug, description, pluginPath);
-    console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
+    setupPlugin(pluginName, slug, description, pluginPath);
     rl.close();
   });
 }
 
-function createPluginStructure(pluginName, slug, description, pluginPath) {
-  // Create plugin directory and files
-  fs.mkdirSync(pluginPath);
-  fs.writeFileSync(path.join(pluginPath, `${slug}.php`), generatePluginHeader(pluginName, slug, description));
-  ['assets', 'css', 'js', '.dev', 'premium'].forEach(folder => {
-    fs.mkdirSync(path.join(pluginPath, folder));
-  });
-  fs.writeFileSync(path.join(pluginPath, 'package.json'), generatePackageJson(slug, description));
+function setupPlugin(pluginName, slug, description, pluginPath) {
+  console.log("Cloning repository...");
+  try {
+    // Clone the repository
+    execSync(`git clone --depth=1 ${GIT_REPO} ${pluginPath}`, { stdio: 'inherit' });
+
+    // Remove the .git folder
+    fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
+
+    // Remove the .dev/init.js file
+    const initFilePath = path.join(pluginPath, '.dev', 'init.js');
+    if (fs.existsSync(initFilePath)) {
+      fs.rmSync(initFilePath);
+    }
+
+    // Rename the main plugin file to match the slug
+    const mainFilePath = path.join(pluginPath, `${slug}.php`);
+    const defaultMainFile = path.join(pluginPath, 'plugin.php');
+    if (fs.existsSync(defaultMainFile)) {
+      fs.renameSync(defaultMainFile, mainFilePath);
+    }
+
+    // Update the main plugin file with the provided details
+    fs.writeFileSync(mainFilePath, generatePluginHeader(pluginName, slug, description));
+
+    // Update the package.json
+    const packageJsonPath = path.join(pluginPath, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    packageJson.name = slug;
+    packageJson.description = description;
+    packageJson.author = "48DESIGN GmbH";
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+
+    console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
+  } catch (err) {
+    console.error("Error setting up the plugin:", err.message);
+    if (fs.existsSync(pluginPath)) {
+      fs.rmSync(pluginPath, { recursive: true, force: true }); // Clean up in case of failure
+    }
+  }
 }
 
 // Helper functions
@@ -120,16 +154,6 @@ Author URI: https://48design.com
 Text Domain: ${slug}
 */
 `;
-}
-
-function generatePackageJson(slug, description) {
-  return JSON.stringify({
-    name: slug,
-    version: "1.0.0",
-    author: "48DESIGN GmbH",
-    description: description,
-    license: "GPL-2.0-or-later"
-  }, null, 2);
 }
 
 // Start the script
