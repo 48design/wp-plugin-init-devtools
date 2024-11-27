@@ -1,0 +1,3 @@
+[submodule "wp-versioncheck"]
+	path = wp-versioncheck
+	url = https://github.com/48design/wp-versioncheck.git
