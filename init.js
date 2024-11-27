@@ -119,6 +119,8 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
     fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
 
     execSync(`git init`, { stdio: 'inherit' });
+    execSync(`git add .`, { stdio: 'inherit' });
+    execSync(`git commit -m "plugin initialised via wp-plugin-init" -q`, { stdio: 'inherit' });
 
     // Remove unnecessary files
     const initFilePath = path.join(pluginPath, '.dev', 'init.js');
