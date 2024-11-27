@@ -1,3 +1,0 @@
-[submodule ".dev/wp-versioncheck"]
-	path = .dev/wp-versioncheck
-	url = https://github.com/48design/wp-versioncheck.git
