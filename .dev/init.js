@@ -116,7 +116,7 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
     console.log(`Repository successfully cloned using username: ${USED_USERNAME || "credential manager"}`);
 
     // Remove the .git folder
-    fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
+    // fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
 
     // Remove unnecessary files
     const initFilePath = path.join(pluginPath, '.dev', 'init.js');
