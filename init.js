@@ -123,8 +123,6 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
       cwd: pluginPath
     };
     execSync(`git init`, gitProcessOptions);
-    execSync(`git add .`, gitProcessOptions);
-    execSync(`git commit -m "plugin initialised via wp-plugin-init" -q`, gitProcessOptions);
 
     // Remove unnecessary files
     const initFilePath = path.join(pluginPath, '.dev', 'init.js');
@@ -197,6 +195,9 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
 
     // Remove all .gitkeep files recursively using globSync
     removeGitkeepFiles(pluginPath);
+    
+    execSync(`git add .`, gitProcessOptions);
+    execSync(`git commit -m "plugin initialised via wp-plugin-init" -q`, gitProcessOptions);
     
     // Install dependencies
     console.log("Installing dependencies...");
