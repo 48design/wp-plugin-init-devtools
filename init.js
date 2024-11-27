@@ -221,7 +221,7 @@ function toPascalCase(str) {
 
 function createAcronym(str) {
   return str
-    .split(/\s+/)
+    .split(/[\s_-]+/)
     .map(word => word.charAt(0).toUpperCase())
     .join('');
 }
