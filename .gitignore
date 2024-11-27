@@ -1,4 +1,1 @@
-node_modules/
-svn/
-combined_output.txt
-dist/_temp/
+vendor/
