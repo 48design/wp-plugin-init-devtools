@@ -162,7 +162,7 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
       packageJson.version = "1.0.0";
       delete packageJson.bin; // Remove the "bin" property
       if(packageJson._scripts) {
-        packageJson.scripts = packageJson._scripts;
+        packageJson.scripts = Object.assign({}, packageJson.scripts || {}, packageJson._scripts);
         delete packageJson._scripts;
       }
       if (packageJson.scripts && packageJson.scripts['svn:checkout']) {
