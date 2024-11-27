@@ -196,10 +196,11 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
-    console.error("Error setting up the plugin:", err.message);
-    if (fs.existsSync(pluginPath)) {
-      fs.rmSync(pluginPath, { recursive: true, force: true });
-    }
+    console.log("Error setting up the plugin:", err.message);
+    console.log("The plugin directory is probably in a broken state.");
+    // if (fs.existsSync(pluginPath)) {
+    //   fs.rmSync(pluginPath, { recursive: true, force: true });
+    // }
   }
 }
 
