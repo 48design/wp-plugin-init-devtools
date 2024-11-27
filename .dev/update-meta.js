@@ -30,13 +30,11 @@ fs.writeFileSync(
 console.log('=> ' + readmeFile);
 const readmeContent = fs.readFileSync(readmeFile, 'utf8');
 const testedMatch = indexContent.match(/\*\s*Tested up to:\s*(.+)/);
-const requiresMatch = indexContent.match(/\*\s*Requires at least:\s*(.+)/);
 
 fs.writeFileSync(
   readmeFile,
   readmeContent
     .replace(/^Tested up to: .+/m, `Tested up to: ${testedMatch ? testedMatch[1] : ''}`)
-    .replace(/^Requires at least: .+/m, `Requires at least: ${requiresMatch ? requiresMatch[1] : ''}`)
     .replace(/^Stable tag: .+/m, `Stable tag: ${packageVersion}`)
 );
 
