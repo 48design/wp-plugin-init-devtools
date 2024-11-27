@@ -118,9 +118,13 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
     // Remove the .git folder
     fs.rmSync(path.join(pluginPath, '.git'), { recursive: true, force: true });
 
-    execSync(`git init -C ${pluginPath}`, { stdio: 'inherit' });
-    execSync(`git add . -C ${pluginPath}`, { stdio: 'inherit' });
-    execSync(`git commit -m "plugin initialised via wp-plugin-init" -q  -C ${pluginPath}`, { stdio: 'inherit' });
+    const gitProcessOptions = {
+      stdio: 'inherit',
+      cwd: pluginPath
+    };
+    execSync(`git init`, gitProcessOptions);
+    execSync(`git add .`, gitProcessOptions);
+    execSync(`git commit -m "plugin initialised via wp-plugin-init" -q`, gitProcessOptions);
 
     // Remove unnecessary files
     const initFilePath = path.join(pluginPath, '.dev', 'init.js');
