@@ -192,7 +192,7 @@ function setupPlugin(pluginName, slug, className, shorthand, description, plugin
     
     // Install dependencies
     console.log("Installing dependencies...");
-    execSync(`npm install`, { cwd: pluginPath, stdio: 'inherit' });
+    execSync(`npm install --silent`, { cwd: pluginPath, stdio: 'inherit' });
 
     console.log(`Plugin "${pluginName}" created successfully at ${pluginPath}`);
   } catch (err) {
