@@ -336,6 +336,7 @@ Promise.all(targetPromises).then(async () => {
           const output = execSync(command, { encoding: 'utf8' });
           process.stdout.write(`\n${output}`);
         }
+        
       });
 
       phpProcess.stderr.on('data', (data) => {
