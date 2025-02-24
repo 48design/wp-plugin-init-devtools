@@ -310,6 +310,22 @@ Promise.all(targetPromises).then(async () => {
       phpProcess.stdout.on('data', (data) => {
         // Convert Buffer to string to process \r correctly
         const output = data.toString();
+        process.stdout.write(output);
+
+        // Auto-initialize DB if needed by checking for specific error messages.
+        if (output.includes('Create the schema with "db:create" command')) {
+          console.log('\nDetected missing DB schema. Running auto-initialization...');
+          try {
+            execSync(`php ${phpcompatScriptPath} db:create`, { encoding: 'utf8' });
+            execSync(`php ${phpcompatScriptPath} db:init`, { encoding: 'utf8' });
+            console.log('Database schema created and initialized successfully.');
+          } catch (err) {
+            console.error('Auto-initialization failed:', err);
+            process.exit(1);
+          }
+        }
+
+        // PHP version requirement
         const matches = output.match(/\[OK\] Requires PHP ([0-9a-z-.]+)/i);
         if(matches) {
           const phpMinVer = matches[1];
@@ -320,6 +336,10 @@ Promise.all(targetPromises).then(async () => {
           const output = execSync(command, { encoding: 'utf8' });
           process.stdout.write(`\n${output}`);
         }
+      });
+
+      phpProcess.stderr.on('data', (data) => {
+        console.error(`PHP STDERR: ${data}`);
       });
 
       phpProcess.on('close', (code) => {
